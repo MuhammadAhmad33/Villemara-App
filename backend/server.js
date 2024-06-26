@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const registrationRoute = require('./routes/registrationRoute');
 const config = require('./config/config');
 
 const app = express();
@@ -9,7 +10,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-
+app.use('/user', registrationRoute);
 
 // Connect to MongoDB
 mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })

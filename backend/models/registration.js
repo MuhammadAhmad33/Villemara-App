@@ -9,8 +9,8 @@ const userSchema = new Schema({
     confirmEmail: { type: String, required: true },
     password: { type: String, required: true },
     confirmPassword: { type: String, required: true },
-    company: { type: String, required: false },
-    houseNo: { type: String, required: false },
+    companyHouseNo: { type: String, required: true },
+
 }, { timestamps: true });
 
 // Middleware to validate email and confirm email match
