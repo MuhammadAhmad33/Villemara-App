@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const registrationRoute = require('./routes/registrationRoute');
+const authRoute = require('./routes/authRoute');
 const config = require('./config/config');
 
 const app = express();
@@ -10,7 +10,8 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-app.use('/user', registrationRoute);
+
+app.use('/auth', authRoute);
 
 // Connect to MongoDB
 mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
