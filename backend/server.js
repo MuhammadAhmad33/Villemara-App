@@ -2,16 +2,22 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const authRoute = require('./routes/authRoute');
+const postRoutes = require('./routes/postRoute');
 const config = require('./config/config');
 
 const app = express();
 
 // Middleware
 app.use(bodyParser.json());
+// Serve static files (for uploaded media)
+app.use('/uploads', express.static('uploads'));
+
 
 // Routes
 
 app.use('/auth', authRoute);
+app.use('/posts', postRoutes);
+
 
 // Connect to MongoDB
 mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
