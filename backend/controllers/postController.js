@@ -28,7 +28,7 @@ async function createPost(req, res) {
 async function getPostById(req, res) {
     try {
         const post = await Post.findById(req.params.id)
-            .populate('taggedUsers', 'firstName lastName email')
+            // .populate('taggedUsers', 'firstName lastName email')
             .populate('likes', 'firstName lastName email')
             .populate('comments.user', 'firstName lastName email')
             .populate('shares', 'firstName lastName email');

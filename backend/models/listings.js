@@ -12,7 +12,7 @@ const listingSchema = new Schema({
     media: { type: String },  // URL to the image/video
     category: {
         type: String,
-        enum: ['selling', 'renting', 'developments', 'joint ventures', 'special purpose vehicles'],
+        enum: ['Selling', 'Renting', 'Developments', 'Joint Ventures', 'Special Purpose Vehicles'],
         required: true
     },
     location: { type: String, required: true },

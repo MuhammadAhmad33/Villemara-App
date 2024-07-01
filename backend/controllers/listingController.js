@@ -31,7 +31,7 @@ async function createListing(req, res) {
 async function getListingById(req, res) {
     try {
         const listing = await Listing.findById(req.params.id)
-            .populate('taggedUsers', 'firstName lastName email')
+            // .populate('taggedUsers', 'firstName lastName email')
             .populate('likes', 'firstName lastName email')
             .populate('comments.user', 'firstName lastName email')
             .populate('shares', 'firstName lastName email');

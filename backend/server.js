@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const authRoute = require('./routes/authRoute');
 const postRoutes = require('./routes/postRoute');
 const listingRoute = require('./routes/listingRoute');
+const storyRoute = require('./routes/storyRoute')
 const config = require('./config/config');
 
 const app = express();
@@ -15,10 +16,10 @@ app.use('/uploads', express.static('uploads'));
 
 
 // Routes
-
 app.use('/auth', authRoute);
 app.use('/posts', postRoutes);
 app.use('/listings', listingRoute);
+app.use('/story', storyRoute)
 
 // Connect to MongoDB
 mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
