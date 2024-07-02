@@ -5,6 +5,7 @@ const authRoute = require('./routes/authRoute');
 const postRoutes = require('./routes/postRoute');
 const listingRoute = require('./routes/listingRoute');
 const storyRoute = require('./routes/storyRoute')
+const profileRoute = require('./routes/profileRoute')
 const config = require('./config/config');
 
 const app = express();
@@ -20,6 +21,7 @@ app.use('/auth', authRoute);
 app.use('/posts', postRoutes);
 app.use('/listings', listingRoute);
 app.use('/story', storyRoute)
+app.use('/profile', profileRoute)
 
 // Connect to MongoDB
 mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
