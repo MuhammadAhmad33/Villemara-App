@@ -28,16 +28,16 @@ jobs:
       - name: Zip artifact for deployment
         run: |
           cd backend
-          zip -r release.zip .
+          zip -r ../../release.zip .
 
       - name: List files after zipping
-        run: ls -al backend
+        run: ls -al
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: node-app
-          path: backend/release.zip
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
         run: ls -al .
 
       - name: Unzip artifact for deployment
-        run: unzip node-app/release.zip -d ./unzipped
+        run: unzip release.zip -d ./unzipped
 
       - name: List unzipped files
         run: ls -al ./unzipped
