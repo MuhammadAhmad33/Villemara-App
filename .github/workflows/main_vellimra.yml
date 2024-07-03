@@ -55,7 +55,7 @@ jobs:
           name: node-app
 
       - name: List downloaded artifact files
-        run: ls -al node-app
+        run: ls -al .
 
       - name: Unzip artifact for deployment
         run: unzip node-app/release.zip -d ./unzipped
