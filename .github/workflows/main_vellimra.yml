@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -22,18 +21,18 @@ jobs:
         run: |
           cd backend
           npm install
-          npm run build --if-present
-          npm run test || true  # Allows the workflow to continue even if the test script fails
+          npm run build
+          npm run test || true  # Allows workflow to continue even if tests fail
 
       - name: Zip artifact for deployment
         run: |
           cd backend
           zip -r ../release.zip .
 
-      - name: List files after zipping
+      - name: List files after zipping (optional)
         run: ls -al
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact for deployment
         uses: actions/upload-artifact@v3
         with:
           name: node-app
@@ -44,9 +43,9 @@ jobs:
     needs: build
     environment:
       name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}  # Output from deploy step
     permissions:
-      id-token: write
+      id-token: write  # Required for Azure Web App deployment
 
     steps:
       - name: Download artifact from build job
@@ -54,20 +53,22 @@ jobs:
         with:
           name: node-app
 
-      - name: List downloaded artifact files
-        run: ls -al .
+      - name: List downloaded artifact files (optional)
+        run: ls -al
 
       - name: Unzip artifact for deployment
         run: unzip release.zip -d ./unzipped
 
-      - name: List unzipped files
+      - name: List unzipped files (optional)
         run: ls -al ./unzipped
 
-      - name: Login to Azure
+      - name: Login to Azure using Service Principal
         uses: azure/login@v1
         with:
-          creds: '${{ secrets.AZURE_SP_CREDENTIALS }}'
-          environment: 'AzureCloud'
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+          client-secret: ${{ secrets.AZUREAPPSERVICE_CLIENTSECRET }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
