@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,18 +22,18 @@ jobs:
         run: |
           cd backend
           npm install
-          npm run build
-          npm run test || true  # Allows workflow to continue even if tests fail
+          npm run build --if-present
+          npm run test || true  # Allows the workflow to continue even if the test script fails
 
       - name: Zip artifact for deployment
         run: |
           cd backend
           zip -r ../release.zip .
 
-      - name: List files after zipping (optional)
+      - name: List files after zipping
         run: ls -al
 
-      - name: Upload artifact for deployment
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: node-app
@@ -43,9 +44,9 @@ jobs:
     needs: build
     environment:
       name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}  # Output from deploy step
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write  # Required for Azure Web App deployment
+      id-token: write
 
     steps:
       - name: Download artifact from build job
@@ -53,16 +54,16 @@ jobs:
         with:
           name: node-app
 
-      - name: List downloaded artifact files (optional)
-        run: ls -al
+      - name: List downloaded artifact files
+        run: ls -al .
 
       - name: Unzip artifact for deployment
         run: unzip release.zip -d ./unzipped
 
-      - name: List unzipped files (optional)
+      - name: List unzipped files
         run: ls -al ./unzipped
 
-      - name: Login to Azure using Service Principal
+      - name: Login to Azure
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
