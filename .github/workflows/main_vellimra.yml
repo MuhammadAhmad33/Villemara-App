@@ -51,7 +51,10 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip -d backend
+        run: unzip release.zip -d .
+
+      - name: Create Procfile
+        run: echo "web: node backend/server.js" > ./Procfile
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -66,4 +69,4 @@ jobs:
         with:
           app-name: 'vellimra'
           slot-name: 'Production'
-          package: backend
+          package: .
