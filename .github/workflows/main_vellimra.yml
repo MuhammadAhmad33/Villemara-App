@@ -27,13 +27,13 @@ jobs:
       - name: Zip artifact for deployment
         run: |
           cd backend
-          zip -r release.zip .
+          zip -r ../release.zip .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: node-app
-          path: backend/release.zip
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,8 +51,7 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: |
-          unzip backend/release.zip -d backend
+        run: unzip release.zip -d backend
 
       - name: Login to Azure
         uses: azure/login@v1
