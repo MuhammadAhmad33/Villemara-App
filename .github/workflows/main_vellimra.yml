@@ -66,4 +66,6 @@ jobs:
         with:
           app-name: 'vellimra'
           slot-name: 'Production'
-          package: 'node backend/server.js'  # Specify the startup command
+          package: 'node backend/server.js'
+          debug: true  # Enable verbose logging
+
