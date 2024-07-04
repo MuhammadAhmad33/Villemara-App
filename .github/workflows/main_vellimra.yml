@@ -42,7 +42,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write
+      id-token: write  # This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -51,10 +51,7 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip -d .
-
-      - name: Create Procfile
-        run: echo "web: node backend/server.js" > ./Procfile
+        run: unzip release.zip -d backend
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -69,4 +66,4 @@ jobs:
         with:
           app-name: 'vellimra'
           slot-name: 'Production'
-          package: .
+          package: ./backend
