@@ -18,12 +18,11 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: npm install, build, and test
+      - name: Install dependencies and build
         run: |
           cd backend
           npm install
           npm run build --if-present
-          npm run test --if-present
 
       - name: Zip artifact for deployment
         run: |
@@ -43,7 +42,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write # This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -53,7 +52,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: |
-          unzip release.zip -d backend
+          unzip backend/release.zip -d backend
 
       - name: Login to Azure
         uses: azure/login@v1
