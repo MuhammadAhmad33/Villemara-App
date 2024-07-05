@@ -27,34 +27,29 @@ async function createProfile(req, res) {
 
 // Add a project to the profile
 async function addProject(req, res) {
-    upload(req, res, async function (err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
+    const { description, completionDate } = req.body;
+    const profileId = req.params.profileId;
+    const media = req.file ? req.file.path : '';
 
-        const { description, completionDate } = req.body;
-        const profileId = req.params.profileId;
-        const media = req.file ? req.file.path : '';
+    try {
+        const newProject = new Project({
+            media,
+            description,
+            completionDate
+        });
 
-        try {
-            const newProject = new Project({
-                media,
-                description,
-                completionDate
-            });
+        await newProject.save();
 
-            await newProject.save();
+        const profile = await Profile.findById(profileId);
+        profile.projects.push(newProject._id);
+        await profile.save();
 
-            const profile = await Profile.findById(profileId);
-            profile.projects.push(newProject._id);
-            await profile.save();
+        res.status(201).json(newProject);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
-            res.status(201).json(newProject);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    });
-}
 
 // Add experience to the profile
 async function addExperience(req, res) {
