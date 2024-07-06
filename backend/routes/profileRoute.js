@@ -19,5 +19,9 @@ router.post('/create', profileController.createProfile);
 router.post('/:profileId/project', upload.single('media'), profileController.addProject);
 router.post('/:profileId/experience', profileController.addExperience);
 router.get('/user/:userId', profileController.getProfileByUserId);
+router.get('/:profileId/projects', profileController.getProjectsByProfileId);
+router.get('/:profileId/experiences', profileController.getExperiencesByProfileId);
+router.put('/:profileId', profileController.editProfile);
+
 
 module.exports = router;
