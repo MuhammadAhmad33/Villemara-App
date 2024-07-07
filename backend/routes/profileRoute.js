@@ -22,6 +22,8 @@ router.get('/user/:userId', profileController.getProfileByUserId);
 router.get('/:profileId/projects', profileController.getProjectsByProfileId);
 router.get('/:profileId/experiences', profileController.getExperiencesByProfileId);
 router.put('/:profileId', profileController.editProfile);
+router.delete('/:profileId/project/:projectId', profileController.deleteProject);
+router.delete('/:profileId/experience/:experienceId', profileController.deleteExperience);
 
 
 module.exports = router;

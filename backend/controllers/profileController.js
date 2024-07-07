@@ -157,6 +157,40 @@ async function editProfile(req, res) {
         res.status(500).json({ error: error.message });
     }
 }
+// Delete a project from the profile
+async function deleteProject(req, res) {
+    const profileId = req.params.profileId;
+    const projectId = req.params.projectId;
+
+    try {
+        await Project.findByIdAndDelete(projectId);
+        const profile = await Profile.findById(profileId);
+        profile.projects.pull(projectId);
+        await profile.save();
+
+        res.status(200).json({ message: 'Project deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+// Delete an experience from the profile
+async function deleteExperience(req, res) {
+    const profileId = req.params.profileId;
+    const experienceId = req.params.experienceId;
+
+    try {
+        await Experience.findByIdAndDelete(experienceId);
+        const profile = await Profile.findById(profileId);
+        profile.experiences.pull(experienceId);
+        await profile.save();
+
+        res.status(200).json({ message: 'Experience deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 
 module.exports = {
     createProfile,
@@ -165,5 +199,7 @@ module.exports = {
     getProfileByUserId,
     getProjectsByProfileId,
     getExperiencesByProfileId,
-    editProfile
+    editProfile,
+    deleteProject,
+    deleteExperience
 };
