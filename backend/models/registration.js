@@ -10,7 +10,8 @@ const userSchema = new Schema({
     password: { type: String, required: true },
     confirmPassword: { type: String, required: true },
     companyHouseNo: { type: String, required: true },
-
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
 }, { timestamps: true });
 
 // Middleware to validate email and confirm email match
