@@ -1,14 +1,19 @@
+// src/controllers/profileController.js
+const { validationResult } = require('express-validator');
 const { Project, Experience, Profile } = require('../models/profile');
-const multer = require('multer');
 
 // Create a new profile
 async function createProfile(req, res) {
-    const { name, headline, companyName, linkedin, instagram, facebook, bookAppointment } = req.body;
-    const userId = req.body.user;///////
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, headline, companyName, linkedin, instagram, facebook, bookAppointment, user } = req.body;
 
     try {
         const newProfile = new Profile({
-            user: userId,
+            user,
             name,
             headline,
             companyName,
@@ -27,6 +32,11 @@ async function createProfile(req, res) {
 
 // Add a project to the profile
 async function addProject(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { description, completionDate } = req.body;
     const profileId = req.params.profileId;
     const media = req.file ? req.file.path : '';
@@ -48,11 +58,15 @@ async function addProject(req, res) {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-};
-
+}
 
 // Add experience to the profile
 async function addExperience(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { companyName, designation, startDate, endDate, jobDescription } = req.body;
     const profileId = req.params.profileId;
 
@@ -77,22 +91,6 @@ async function addExperience(req, res) {
     }
 }
 
-// Get a profile by user ID
-async function getProfileByUserId(req, res) {
-    try {
-        const profile = await Profile.findOne({ user: req.params.userId })
-            .populate('projects')
-            .populate('experiences');
-
-        if (!profile) {
-            return res.status(404).json({ message: 'Profile not found' });
-        }
-
-        res.status(200).json(profile);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
 // Get a profile by user ID
 async function getProfileByUserId(req, res) {
     try {
@@ -138,6 +136,11 @@ async function getExperiencesByProfileId(req, res) {
 
 // Edit a profile
 async function editProfile(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { name, headline, companyName, linkedin, instagram, facebook, bookAppointment } = req.body;
     const profileId = req.params.profileId;
 
@@ -157,6 +160,7 @@ async function editProfile(req, res) {
         res.status(500).json({ error: error.message });
     }
 }
+
 // Delete a project from the profile
 async function deleteProject(req, res) {
     const profileId = req.params.profileId;
@@ -191,7 +195,6 @@ async function deleteExperience(req, res) {
     }
 }
 
-
 module.exports = {
     createProfile,
     addProject,
@@ -202,4 +205,4 @@ module.exports = {
     editProfile,
     deleteProject,
     deleteExperience
-};
+}

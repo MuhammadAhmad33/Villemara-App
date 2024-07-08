@@ -3,6 +3,12 @@ const UserSignup = require('../models/registration');  // Ensure the correct pat
 
 async function createPost(req, res) {
     try {
+        // Validate request body
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
         const { thoughts, location, taggedUsers, tags } = req.body;
         let media = '';
 

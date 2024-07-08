@@ -3,8 +3,14 @@ const sendEmail = require('../utils/sendEmail');
 const { generateToken } = require('../utils/jwt');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const { validationResult } = require('express-validator');
 
 async function registerUser(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { firstName, lastName, email, confirmEmail, password, confirmPassword, companyHouseNo } = req.body;
     const subject = 'Registration Confirmation';
     const confirmationMessage = `
@@ -38,17 +44,20 @@ async function registerUser(req, res) {
 }
 
 async function loginUser(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { email, password } = req.body;
 
     try {
-        // Check if user exists
         const user = await UserSignup.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Validate password
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
@@ -57,19 +66,17 @@ async function loginUser(req, res) {
 
         const token = generateToken(user._id);
 
-        // Login successful
         res.status(200).json({ message: 'Login successful', user, token });
     } catch (error) {
         console.error('Error logging in:', error);
         res.status(500).json({ message: 'Error logging in' });
     }
-};
+}
 
 async function getUserById(req, res) {
     const { id } = req.params;
 
     try {
-        // Find user by ID
         const user = await UserSignup.findById(id);
 
         if (!user) {
@@ -84,15 +91,17 @@ async function getUserById(req, res) {
 }
 
 async function forgotPassword(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { email } = req.body;
     try {
         const user = await UserSignup.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
-        }
-        else {
-            console.log('user found')
         }
 
         const resetToken = crypto.randomBytes(20).toString('hex');
@@ -111,13 +120,18 @@ async function forgotPassword(req, res) {
 
         await sendEmail(email, subject, resetMessage);
 
-        res.status(200).json({ message: 'User Found ', resetUrl , message: ', Password reset email sent' });
+        res.status(200).json({ message: 'Password reset email sent', resetUrl });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 }
 
 async function resetPassword(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { token } = req.params;
     const { password } = req.body;
 

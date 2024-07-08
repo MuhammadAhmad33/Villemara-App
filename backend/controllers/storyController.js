@@ -1,8 +1,15 @@
+// src/controllers/storyController.js
+const { validationResult } = require('express-validator');
 const Story = require('../models/story');  // Ensure the correct path to the Story model
 const UserSignup = require('../models/registration');  // Ensure the correct path to the UserSignup model
 
 // Add a story
 async function createStory(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { text } = req.body;
         let media = '';
@@ -38,6 +45,11 @@ async function deleteStory(req, res) {
 
 // Get a story by ID and update views
 async function getStoryById(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const story = await Story.findById(req.params.id).populate('views', 'firstName lastName email');
 

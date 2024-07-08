@@ -1,4 +1,6 @@
+// src/routes/storyRoutes.js
 const express = require('express');
+const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const storyController = require('../controllers/storyController');
 const multer = require('multer');
@@ -15,8 +17,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post('/create', upload.single('media'), storyController.createStory);
+const validateStory = [
+    check('text').not().isEmpty().withMessage('Text is required'),
+];
+
+const validateUserId = [
+    check('userId').not().isEmpty().withMessage('User ID is required'),
+];
+
+// Routes
+router.post('/create', upload.single('media'), validateStory, storyController.createStory);
 router.delete('/:id', storyController.deleteStory);
-router.get('/:id', storyController.getStoryById);
+router.get('/:id', validateUserId, storyController.getStoryById);
 
 module.exports = router;

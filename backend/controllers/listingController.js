@@ -1,8 +1,15 @@
+// src/controllers/listingController.js
+const { validationResult } = require('express-validator');
 const Listing = require('../models/listings');
 const UserSignup = require('../models/registration');  // Ensure the correct path to the UserSignup model
 
 // Create a new listing
 async function createListing(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { caption, category, location, taggedUsers, tags } = req.body;
         let media = '';

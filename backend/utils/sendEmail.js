@@ -6,8 +6,9 @@ const resend = new Resend(config.resendKey);
 
 async function sendEmail(to, subject, text) {
     try {
+        console.log('Sending email...');
         const { data, error } = await resend.emails.send({
-            from: 'info@ladverts.com', // Replace with your sender email
+            from: 'noreply@villemara.com',
             to: [to],
             subject: subject,
             text: text,
