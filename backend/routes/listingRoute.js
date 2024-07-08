@@ -21,8 +21,6 @@ const validateListing = [
     check('caption').not().isEmpty().withMessage('Caption is required'),
     check('category').not().isEmpty().withMessage('Category is required'),
     check('location').optional().isString().withMessage('Location must be a string'),
-    check('taggedUsers').optional().isArray().withMessage('Tagged users must be an array'),
-    check('tags').optional().isArray().withMessage('Tags must be an array'),
 ];
 
 // Routes
