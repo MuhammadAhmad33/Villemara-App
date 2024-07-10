@@ -213,13 +213,13 @@ async function addRecommendation(req, res) {
 
         await newRecommendation.save();
 
-        // // Add to the profile's recommendationsGiven
-        // const profile = await Profile.findById(profileId);
-        // profile.recommendationsGiven.push(newRecommendation._id);
-        // await profile.save();
-        // console.log(profile.recommendationsGiven, 'given');
+        // Add to the profile's recommendationsGiven
+        const profile = await Profile.findById(profileId);
+        profile.recommendationsGiven.push(newRecommendation._id);
+        await profile.save();
+        console.log(profile.recommendationsGiven, 'given');
         // Add to the member's recommendationsReceived
-        const memberProfile = await Profile.findById({ user: member });
+        const memberProfile = await Profile.findById(member);
         console.log(memberProfile, 'member');
         memberProfile.recommendationsReceived.push(newRecommendation._id);
         await memberProfile.save();
