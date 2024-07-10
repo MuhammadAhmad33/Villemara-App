@@ -1,5 +1,6 @@
 const Post = require('../models/posts');
 const UserSignup = require('../models/registration');  // Ensure the correct path to the UserSignup model
+const { validationResult } = require('express-validator');
 
 async function createPost(req, res) {
     try {
