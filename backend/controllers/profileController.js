@@ -1,6 +1,7 @@
 // src/controllers/profileController.js
 const { validationResult } = require('express-validator');
-const { Project, Experience, Profile } = require('../models/profile');
+const { Project, Experience, Profile, Recommendation } = require('../models/profile');
+const UserSignup = require('../models/registration');
 
 // Create a new profile
 async function createProfile(req, res) {
@@ -195,6 +196,67 @@ async function deleteExperience(req, res) {
     }
 }
 
+async function addRecommendation(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { member, text } = req.body;
+    const { profileId } = req.params;
+    console.log(member, profileId);
+    try {
+        const newRecommendation = new Recommendation({
+            member,
+            text
+        });
+
+        await newRecommendation.save();
+
+        // // Add to the profile's recommendationsGiven
+        // const profile = await Profile.findById(profileId);
+        // profile.recommendationsGiven.push(newRecommendation._id);
+        // await profile.save();
+        // console.log(profile.recommendationsGiven, 'given');
+        // Add to the member's recommendationsReceived
+        const memberProfile = await Profile.findById({ user: member });
+        console.log(memberProfile, 'member');
+        memberProfile.recommendationsReceived.push(newRecommendation._id);
+        await memberProfile.save();
+        console.log(memberProfile.recommendationsReceived, 'received');
+        res.status(201).json(newRecommendation);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+// Get recommendations given by profile ID
+async function getRecommendationsGiven(req, res) {
+    try {
+        const profile = await Profile.findById(req.params.profileId).populate('recommendationsGiven');
+        if (!profile) {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+        res.status(200).json(profile.recommendationsGiven);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+// Get recommendations received by profile ID
+async function getRecommendationsReceived(req, res) {
+    try {
+        const profile = await Profile.findById(req.params.profileId).populate('recommendationsReceived');
+        if (!profile) {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+        res.status(200).json(profile.recommendationsReceived);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+
 module.exports = {
     createProfile,
     addProject,
@@ -204,5 +266,8 @@ module.exports = {
     getExperiencesByProfileId,
     editProfile,
     deleteProject,
-    deleteExperience
+    deleteExperience,
+    addRecommendation,
+    getRecommendationsGiven,
+    getRecommendationsReceived,
 }

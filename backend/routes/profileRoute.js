@@ -41,6 +41,11 @@ const validateExperience = [
     check('jobDescription').not().isEmpty().withMessage('Job description is required'),
 ];
 
+const validateRecommendation = [
+    check('member').not().isEmpty().withMessage('Member ID is required'),
+    check('text').not().isEmpty().withMessage('Text is required')
+];
+
 // Routes
 router.post('/create', validateProfile, profileController.createProfile);
 router.post('/:profileId/project', upload.single('media'), validateProject, profileController.addProject);
@@ -51,5 +56,9 @@ router.get('/:profileId/experiences', profileController.getExperiencesByProfileI
 router.put('/:profileId', validateProfile, profileController.editProfile);
 router.delete('/:profileId/project/:projectId', profileController.deleteProject);
 router.delete('/:profileId/experience/:experienceId', profileController.deleteExperience);
+// New routes for recommendations
+router.post('/:profileId/recommendation', validateRecommendation, profileController.addRecommendation);
+router.get('/:profileId/recommendations/given', profileController.getRecommendationsGiven);
+router.get('/:profileId/recommendations/received', profileController.getRecommendationsReceived);
 
 module.exports = router;

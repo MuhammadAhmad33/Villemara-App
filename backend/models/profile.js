@@ -1,3 +1,4 @@
+// src/models/profile.js
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
@@ -17,6 +18,12 @@ const experienceSchema = new Schema({
     jobDescription: { type: String, required: true }
 }, { timestamps: true });
 
+// Define the Recommendation schema
+const recommendationSchema = new Schema({
+    member: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSignup', required: true },
+    text: { type: String, required: true }
+}, { timestamps: true });
+
 // Define the Profile schema
 const profileSchema = new Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSignup', required: true },
@@ -28,15 +35,19 @@ const profileSchema = new Schema({
     facebook: { type: String },
     bookAppointment: { type: Boolean, default: false },
     projects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
-    experiences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Experience' }]
+    experiences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Experience' }],
+    recommendationsGiven: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' }],
+    recommendationsReceived: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' }]
 }, { timestamps: true });
 
 const Project = mongoose.model('Project', projectSchema);
 const Experience = mongoose.model('Experience', experienceSchema);
+const Recommendation = mongoose.model('Recommendation', recommendationSchema);
 const Profile = mongoose.model('Profile', profileSchema);
 
 module.exports = {
     Project,
     Experience,
+    Recommendation,
     Profile
 };
