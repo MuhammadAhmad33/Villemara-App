@@ -103,25 +103,34 @@ async function forgotPassword(req, res) {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        console.log(user);
+        // Generate a new password
+        const newPassword = crypto.randomBytes(6).toString('hex');
 
-        const resetToken = crypto.randomBytes(20).toString('hex');
-        user.resetPasswordToken = resetToken;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+        // Hash the new password
+        const salt = await bcrypt.genSalt(6);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
 
+        // Update the user's password
+        user.password = hashedPassword;
+        user.confirmPassword = hashedPassword;
+        console.log(user.password, hashedPassword);
         await user.save();
 
-        const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
-        const subject = 'Password Reset Request';
-        const resetMessage = `
+        // Prepare the email
+        const subject = 'Your New Password';
+        const message = `
         Hi ${user.firstName}!
-        You requested a password reset. Please click the following link to reset your password:
-        ${resetUrl}
+        As per your request, we have generated a new password for you. Please use the following password to log in:
+        New Password: ${newPassword}
         \nBest regards,\nVillemara`;
 
-        await sendEmail(email, subject, resetMessage);
+        // Send the email
+        await sendEmail(email, subject, message);
 
-        res.status(200).json({ message: 'Password reset email sent', resetUrl });
+        res.status(200).json({ message: 'A new password has been sent to your email' });
     } catch (error) {
+        console.error('Error resetting password:', error);
         res.status(500).json({ message: error.message });
     }
 }
