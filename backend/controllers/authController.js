@@ -97,41 +97,20 @@ async function forgotPassword(req, res) {
     }
 
     const { email } = req.body;
+
     try {
         const user = await UserSignup.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        console.log(user);
-        // Generate a new password
-        const newPassword = crypto.randomBytes(6).toString('hex');
-
-        // Hash the new password
-        const salt = await bcrypt.genSalt(6);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        // Update the user's password
-        user.password = hashedPassword;
-        user.confirmPassword = hashedPassword;
-        console.log(user.password, hashedPassword);
-        await user.save();
-
-        // Prepare the email
-        const subject = 'Your New Password';
-        const message = `
-        Hi ${user.firstName}!
-        As per your request, we have generated a new password for you. Please use the following password to log in:
-        New Password: ${newPassword}
-        \nBest regards,\nVillemara`;
-
-        // Send the email
-        await sendEmail(email, subject, message);
-
-        res.status(200).json({ message: 'A new password has been sent to your email' });
+        else {
+            console.log(user);
+            return res.status(500).json({ message: 'User found' });
+        }
     } catch (error) {
         console.error('Error resetting password:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Email does not exist kindly provide a valid email' });
     }
 }
 
@@ -141,25 +120,23 @@ async function resetPassword(req, res) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { token } = req.params;
-    const { password } = req.body;
+    const { id } = req.params;
+    const { newPassword } = req.body;
+    const { confirmPassword } = req.body;
 
     try {
-        const user = await UserSignup.findOne({
-            resetPasswordToken: token,
-            resetPasswordExpires: { $gt: Date.now() }
-        });
+        const user = await UserSignup.findById(id);
 
         if (!user) {
             return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
         }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
+        console.log(user.password);
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
         user.confirmPassword = hashedPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
-
+        console.log(user.password);
         await user.save();
 
         res.status(200).json({ message: 'Password reset successfully' });

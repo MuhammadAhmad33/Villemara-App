@@ -26,8 +26,8 @@ router.post('/forgot-password', [
     check('email').isEmail().withMessage('Valid email is required')
 ], authController.forgotPassword);
 
-router.post('/reset-password/:token', [
-    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+router.post('/reset-password/:id', [
+    check('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
 ], authController.resetPassword);
 
 module.exports = router;
