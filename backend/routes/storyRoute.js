@@ -29,5 +29,7 @@ const validateUserId = [
 router.post('/create', upload.single('media'), validateStory, storyController.createStory);
 router.delete('/:id', storyController.deleteStory);
 router.get('/:id', validateUserId, storyController.getStoryById);
+router.get('/', storyController.getAllStories);
+
 
 module.exports = router;

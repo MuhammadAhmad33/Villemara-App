@@ -66,11 +66,20 @@ async function getStoryById(req, res) {
         res.status(200).json(story);
     } catch (error) {
         res.status(500).json({ error: error.message });
-    }
+    }   
 }
 
+async function getAllStories(req, res) {
+    try {
+        const stories = await Story.find().populate('views', 'firstName lastName email');
+        res.status(200).json(stories);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
 module.exports = {
     createStory,
     deleteStory,
-    getStoryById
+    getStoryById,
+    getAllStories,
 };
