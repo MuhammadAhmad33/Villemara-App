@@ -27,6 +27,7 @@ const recommendationSchema = new Schema({
 // Define the Profile schema
 const profileSchema = new Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSignup', required: true },
+    media: { type: String },
     name: { type: String, required: true },
     headline: { type: String, required: true },
     companyName: { type: String, required: true },

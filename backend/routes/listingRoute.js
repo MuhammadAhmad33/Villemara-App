@@ -1,34 +1,23 @@
-// src/routes/listingRoutes.js
 const express = require('express');
-const { check, validationResult } = require('express-validator');
 const router = express.Router();
-const listingController = require('../controllers/listingController');
-const multer = require('multer');
+const { check} = require('express-validator');
+const lisitngController = require('../controllers/listingController');
 
-// Set up multer for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');  // Specify the upload directory
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);  // Generate a unique filename
-    }
-});
+// Middleware for uploading media
+const uploadMedia = require('../utils/uploadService').upload.single('media');
 
-const upload = multer({ storage: storage });
 
-const validateListing = [
+const validateListings = [
     check('caption').not().isEmpty().withMessage('Caption is required'),
     check('category').not().isEmpty().withMessage('Category is required'),
-    check('location').optional().isString().withMessage('Location must be a string'),
 ];
 
-// Routes
-router.post('/create', upload.single('media'), validateListing, listingController.createListing);
-router.get('/:id', listingController.getListingById);
-router.delete('/:id', listingController.deleteListing);
-router.post('/:id/like', listingController.likeListing);
-router.post('/:id/comment', listingController.commentOnListing);
-router.post('/:id/share', listingController.shareListing);
+
+router.post('/create',uploadMedia,validateListings, lisitngController.createListing);
+router.get('/:id', lisitngController.getListingById);
+router.delete('/:id', lisitngController.deleteListing);
+router.post('/:id/like', lisitngController.likeListing);
+router.post('/:id/comment', lisitngController.commentOnListing);
+router.post('/:id/share', lisitngController.shareListing);
 
 module.exports = router;

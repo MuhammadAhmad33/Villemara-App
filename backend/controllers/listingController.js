@@ -2,25 +2,28 @@
 const { validationResult } = require('express-validator');
 const Listing = require('../models/listings');
 const UserSignup = require('../models/registration');  // Ensure the correct path to the UserSignup model
+const { generateFileUrl } = require('../utils/uploadService');
 
 // Create a new listing
 async function createListing(req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
     try {
+        console.log(req.body);
+        console.log(req.file);
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         const { caption, category, location, taggedUsers, tags } = req.body;
-        let media = '';
+        let mediaUrl = '';
 
         if (req.file) {
-            media = req.file.path;  // Path to the uploaded file
+            mediaUrl = generateFileUrl('listingMedia', req.file.path);  // Generate URL for the uploaded file
         }
 
         const newListing = new Listing({
             caption,
-            media,
+            media: mediaUrl,
             category,
             location,
             taggedUsers: taggedUsers ? JSON.parse(taggedUsers) : [],

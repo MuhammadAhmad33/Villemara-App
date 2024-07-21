@@ -1,28 +1,18 @@
 const express = require('express');
-const multer = require('multer');
-const { check } = require('express-validator');
+const { check} = require('express-validator');
 const postController = require('../controllers/postController');
 
 const router = express.Router();
 
-// Set up multer for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');  // Specify the upload directory
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);  // Generate a unique filename
-    }
-});
-
-const upload = multer({ storage: storage });
+// Middleware for uploading media
+const uploadMedia = require('../utils/uploadService').upload.single('media');
 
 // Routes
-const validateListing = [
+const validatePosts = [
     check('thoughts').not().isEmpty().withMessage('Thoughts are required'),
 ];
 
-router.post('/create', upload.single('media'), validateListing, postController.createPost);
+router.post('/create', uploadMedia, validatePosts, postController.createPost);
 router.get('/:id', postController.getPostById);
 router.delete('/:id', postController.deletePost);
 router.post('/:id/like', postController.likePost);

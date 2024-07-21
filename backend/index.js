@@ -6,10 +6,11 @@ const bodyParser = require('body-parser');
 const authRoute = require('./routes/authRoute');
 const postRoutes = require('./routes/postRoute');
 const listingRoute = require('./routes/listingRoute');
-const storyRoute = require('./routes/storyRoute')
-const profileRoute = require('./routes/profileRoute')
+const storyRoute = require('./routes/storyRoute');
+const profileRoute = require('./routes/profileRoute');
 const socketController = require('./controllers/socketController');
 const socketRoutes = require('./routes/socketRoute');
+// const uploadRoutes = require('./routes/uploadRoute'); // Ensure this route file exists
 const config = require('./config/config');
 
 const app = express();
@@ -18,21 +19,21 @@ const io = socketIo(server);
 
 // Middleware
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files (for uploaded media)
 app.use('/uploads', express.static('uploads'));
-
 
 // Routes
 app.use('/auth', authRoute);
 app.use('/posts', postRoutes);
-app.use('/listings', listingRoute); 
-app.use('/story', storyRoute)
-app.use('/profile', profileRoute)
+app.use('/listings', listingRoute);
+app.use('/story', storyRoute);
+app.use('/profile', profileRoute);
+// app.use('/file', uploadRoutes); // Unified upload endpoint
 
-//socket
+// Socket
 app.use('/socket', socketRoutes);
 socketController(io);
-
 
 // Connect to MongoDB
 mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -41,6 +42,6 @@ mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: t
 
 // Start the server
 const port = process.env.PORT || 5001;
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

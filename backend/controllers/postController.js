@@ -1,25 +1,27 @@
 const Post = require('../models/posts');
 const UserSignup = require('../models/registration');  // Ensure the correct path to the UserSignup model
 const { validationResult } = require('express-validator');
+const { generateFileUrl } = require('../utils/uploadService');
 
 async function createPost(req, res) {
     try {
+        console.log(req.body);
+        console.log(req.file);
         // Validate request body
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-
         const { thoughts, location, taggedUsers, tags } = req.body;
-        let media = '';
+        let mediaUrl = '';
 
         if (req.file) {
-            media = req.file.path;  // Path to the uploaded file
+            mediaUrl = generateFileUrl('postMedia', req.file.path);  // Generate URL for the uploaded file
         }
 
         const newPost = new Post({
             thoughts,
-            media,
+            media: mediaUrl,
             location,
             taggedUsers: taggedUsers ? JSON.parse(taggedUsers) : [],
             tags: tags ? JSON.parse(tags) : []
@@ -128,5 +130,5 @@ module.exports = {
     deletePost,
     likePost,
     commentOnPost,
-    sharePost
+    sharePost,
 }

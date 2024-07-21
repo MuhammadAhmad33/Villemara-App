@@ -2,6 +2,7 @@
 const { validationResult } = require('express-validator');
 const { Project, Experience, Profile, Recommendation } = require('../models/profile');
 const UserSignup = require('../models/registration');
+const {generateFileUrl } = require('../utils/uploadService');
 
 // Create a new profile
 async function createProfile(req, res) {
@@ -11,10 +12,16 @@ async function createProfile(req, res) {
     }
 
     const { name, headline, companyName, linkedin, instagram, facebook, bookAppointment, user } = req.body;
+    let mediaUrl = '';
+
+    if (req.file) {
+        mediaUrl = generateFileUrl('profilePicture', req.file.path);  // Generate URL for the uploaded file
+    }
 
     try {
         const newProfile = new Profile({
             user,
+            media: mediaUrl,
             name,
             headline,
             companyName,
@@ -33,6 +40,10 @@ async function createProfile(req, res) {
 
 // Add a project to the profile
 async function addProject(req, res) {
+    
+    console.log(req.body);
+    console.log(req.file);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -40,11 +51,15 @@ async function addProject(req, res) {
 
     const { description, completionDate } = req.body;
     const profileId = req.params.profileId;
-    const media = req.file ? req.file.path : '';
+    let mediaUrl ='';
+
+    if (req.file) {
+        mediaUrl = generateFileUrl('projectMedia', req.file.path);  // Generate URL for the uploaded file
+    }
 
     try {
         const newProject = new Project({
-            media,
+            media: mediaUrl,
             description,
             completionDate
         });
