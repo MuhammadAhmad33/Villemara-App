@@ -38,6 +38,7 @@ const validateRecommendation = [
 
 // Routes
 router.post('/create',uploadMedia, validateProfile, profileController.createProfile);
+router.get('/allProfiles',profileController.getAllProfiles);
 router.post('/:profileId/project', uploadMedia, validateProject, profileController.addProject);
 router.post('/:profileId/experience', validateExperience, profileController.addExperience);
 router.get('/user/:userId', profileController.getProfileByUserId);

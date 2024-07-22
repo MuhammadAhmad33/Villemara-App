@@ -21,9 +21,6 @@ function generateFileUrl(context, filePath) {
         case 'profilePicture':
             fileUrl = `https://example.com/profile-pictures/${path.basename(filePath)}`;
             break;
-        case 'document':
-            fileUrl = `https://example.com/documents/${path.basename(filePath)}`;
-            break;
         case 'projectMedia':
             fileUrl = `https://example.com/project-media/${path.basename(filePath)}`;
             break;
