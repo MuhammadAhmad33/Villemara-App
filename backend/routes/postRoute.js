@@ -13,6 +13,7 @@ const validatePosts = [
 ];
 
 router.post('/create', uploadMedia, validatePosts, postController.createPost);
+router.get('/allPosts',postController.getAllPosts)
 router.get('/:id', postController.getPostById);
 router.delete('/:id', postController.deletePost);
 router.post('/:id/like', postController.likePost);

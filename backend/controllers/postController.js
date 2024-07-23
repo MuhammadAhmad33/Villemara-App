@@ -124,6 +124,15 @@ async function sharePost(req, res) {
     }
 };
 
+async function getAllPosts(req, res) {
+    try {
+        const posts = await Post.find();
+        res.status(200).json(posts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 module.exports = {
     createPost,
     getPostById,
@@ -131,4 +140,5 @@ module.exports = {
     likePost,
     commentOnPost,
     sharePost,
+    getAllPosts,
 }
