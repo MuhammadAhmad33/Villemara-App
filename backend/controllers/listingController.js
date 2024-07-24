@@ -15,15 +15,15 @@ async function createListing(req, res) {
             return res.status(400).json({ errors: errors.array() });
         }
         const { caption, category, location, taggedUsers, tags } = req.body;
-        let mediaUrl = '';
+        let listingMediaUrl = '';
 
         if (req.file) {
-            mediaUrl = generateFileUrl('listingMedia', req.file.path);  // Generate URL for the uploaded file
+            listingMediaUrl = generateFileUrl('listingMedia', req.file.path);  // Generate URL for the uploaded file
         }
 
         const newListing = new Listing({
             caption,
-            media: mediaUrl,
+            media: listingMediaUrl,
             category,
             location,
             taggedUsers: taggedUsers ? JSON.parse(taggedUsers) : [],

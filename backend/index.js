@@ -10,7 +10,6 @@ const storyRoute = require('./routes/storyRoute');
 const profileRoute = require('./routes/profileRoute');
 const socketController = require('./controllers/socketController');
 const socketRoutes = require('./routes/socketRoute');
-// const uploadRoutes = require('./routes/uploadRoute'); // Ensure this route file exists
 const config = require('./config/config');
 
 const app = express();
@@ -29,7 +28,6 @@ app.use('/posts', postRoutes);
 app.use('/listings', listingRoute);
 app.use('/story', storyRoute);
 app.use('/profile', profileRoute);
-// app.use('/file', uploadRoutes); // Unified upload endpoint
 
 // Socket
 app.use('/socket', socketRoutes);

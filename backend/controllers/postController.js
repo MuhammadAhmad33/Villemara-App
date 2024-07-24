@@ -13,15 +13,15 @@ async function createPost(req, res) {
             return res.status(400).json({ errors: errors.array() });
         }
         const { thoughts, location, taggedUsers, tags } = req.body;
-        let mediaUrl = '';
+        let postMediaUrl = '';
 
         if (req.file) {
-            mediaUrl = generateFileUrl('postMedia', req.file.path);  // Generate URL for the uploaded file
+            postMediaUrl = generateFileUrl('postMedia', req.file.path);  // Generate URL for the uploaded file
         }
 
         const newPost = new Post({
             thoughts,
-            media: mediaUrl,
+            media: postMediaUrl,
             location,
             taggedUsers: taggedUsers ? JSON.parse(taggedUsers) : [],
             tags: tags ? JSON.parse(tags) : []

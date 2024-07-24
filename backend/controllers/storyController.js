@@ -15,14 +15,14 @@ async function createStory(req, res) {
         }
 
         const { text } = req.body;
-        let mediaUrl = '';
+        let storyMediaUrl = '';
 
         if (req.file) {
-            mediaUrl = generateFileUrl('storyMedia', req.file.path);  // Generate URL for the uploaded file
+            storyMediaUrl = generateFileUrl('storyMedia', req.file.path);  // Generate URL for the uploaded file
         }
 
         const newStory = new Story({
-            media: mediaUrl,
+            media: storyMediaUrl,
             text
         });
 

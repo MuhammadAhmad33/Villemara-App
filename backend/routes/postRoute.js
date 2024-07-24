@@ -12,7 +12,7 @@ const validatePosts = [
     check('thoughts').not().isEmpty().withMessage('Thoughts are required'),
 ];
 
-router.post('/create', uploadMedia, validatePosts, postController.createPost);
+router.post('/create',uploadMedia, validatePosts, postController.createPost);
 router.get('/allPosts',postController.getAllPosts)
 router.get('/:id', postController.getPostById);
 router.delete('/:id', postController.deletePost);

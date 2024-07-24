@@ -12,16 +12,16 @@ async function createProfile(req, res) {
     }
 
     const { name, headline, companyName, linkedin, instagram, facebook, bookAppointment, user } = req.body;
-    let mediaUrl = '';
+    let profileMediaUrl = '';
 
     if (req.file) {
-        mediaUrl = generateFileUrl('profilePicture', req.file.path);  // Generate URL for the uploaded file
+        profileMediaUrl = generateFileUrl('profilePicture', req.file.path);  // Generate URL for the uploaded file
     }
-
+    console.log(profileMediaUrl)
     try {
         const newProfile = new Profile({
             user,
-            media: mediaUrl,
+            media: profileMediaUrl,
             name,
             headline,
             companyName,
