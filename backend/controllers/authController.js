@@ -120,12 +120,16 @@ async function resetPassword(req, res) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { id } = req.params;
+    const userId = req.user._id;
     const { newPassword } = req.body;
     const { confirmPassword } = req.body;
+    
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: 'Passwords do not match' });
+    }
 
     try {
-        const user = await UserSignup.findById(id);
+        const user = await UserSignup.findById(userId);
 
         if (!user) {
             return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
@@ -134,8 +138,6 @@ async function resetPassword(req, res) {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
         user.confirmPassword = hashedPassword;
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
         console.log(user.password);
         await user.save();
 

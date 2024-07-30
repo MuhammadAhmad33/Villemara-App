@@ -2,12 +2,20 @@
 const { validationResult } = require('express-validator');
 const Story = require('../models/story');  // Ensure the correct path to the Story model
 const UserSignup = require('../models/registration');  // Ensure the correct path to the UserSignup model
+const Profile = require('../models/profile').Profile;
 const { generateFileUrl } = require('../utils/uploadService');  // Ensure the correct path to the fileUtils file
 // Add a story
 async function createStory(req, res) {
     try {
         console.log(req.body);
         console.log(req.file);
+
+        // Retrieve the profile using the provided ID
+        const profile = await Profile.findById(req.params.id);
+
+        if (!profile) {
+            return res.status(404).json({ error: 'Profile not found' });
+        }
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -20,10 +28,10 @@ async function createStory(req, res) {
         if (req.file) {
             storyMediaUrl = generateFileUrl('storyMedia', req.file.path);  // Generate URL for the uploaded file
         }
-
         const newStory = new Story({
             media: storyMediaUrl,
-            text
+            text,
+            profile: profile._id
         });
 
         await newStory.save();
@@ -54,7 +62,13 @@ async function getStoryById(req, res) {
     }
 
     try {
-        const story = await Story.findById(req.params.id).populate('views', 'firstName lastName email');
+        const story = await Story.findById(req.params.id)
+            .populate('views', 'firstName lastName email')
+            .populate({
+                path: 'profile', // This should reference the Profile model
+                select: 'name headline media',
+                model: 'Profile' // Ensure this is the correct model
+            });
 
         if (!story) {
             return res.status(404).json({ message: 'Story not found' });
@@ -69,12 +83,18 @@ async function getStoryById(req, res) {
         res.status(200).json(story);
     } catch (error) {
         res.status(500).json({ error: error.message });
-    }   
+    }
 }
 
 async function getAllStories(req, res) {
     try {
-        const stories = await Story.find().populate('views', 'firstName lastName email');
+        const stories = await Story.find()
+            .populate('views', 'firstName lastName email')
+            .populate({
+                path: 'profile', // This should reference the Profile model
+                select: 'name headline media',
+                model: 'Profile' // Ensure this is the correct model
+            });;
         res.status(200).json(stories);
     } catch (error) {
         res.status(500).json({ error: error.message });

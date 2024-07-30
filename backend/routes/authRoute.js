@@ -1,6 +1,7 @@
 const express = require('express');
 const { check } = require('express-validator');
 const authController = require('../controllers/authController');
+const auth = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -26,8 +27,8 @@ router.post('/forgot-password', [
     check('email').isEmail().withMessage('Valid email is required')
 ], authController.forgotPassword);
 
-router.post('/reset-password/:id', [
+router.post('/reset-password', [
     check('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-], authController.resetPassword);
+], auth, authController.resetPassword);
 
 module.exports = router;

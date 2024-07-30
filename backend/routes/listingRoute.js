@@ -13,7 +13,7 @@ const validateListings = [
 ];
 
 
-router.post('/create',uploadMedia,validateListings, lisitngController.createListing);
+router.post('/create/:id',uploadMedia,validateListings, lisitngController.createListing);
 router.get('/allListings',lisitngController.getAllListings)
 router.get('/:id', lisitngController.getListingById);
 router.delete('/:id', lisitngController.deleteListing);

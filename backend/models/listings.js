@@ -21,7 +21,9 @@ const listingSchema = new Schema({
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserSignup' }],
     comments: [listingCommentSchema],
     shares: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserSignup' }],
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    profile: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required: true } // Reference to the user who created the post
+
 });
 
 module.exports = mongoose.model('Listing', listingSchema);

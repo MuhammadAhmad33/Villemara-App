@@ -17,10 +17,10 @@ const validateUserId = [
 ];
 
 // Routes
-router.post('/create', uploadMedia, validateStory, storyController.createStory);
+router.post('/create/:id', uploadMedia, validateStory, storyController.createStory);
 router.delete('/:id', storyController.deleteStory);
+router.get('/all', storyController.getAllStories);
 router.get('/:id', validateUserId, storyController.getStoryById);
-router.get('/', storyController.getAllStories);
 
 
 module.exports = router;

@@ -1,7 +1,7 @@
 // src/controllers/listingController.js
 const { validationResult } = require('express-validator');
 const Listing = require('../models/listings');
-const UserSignup = require('../models/registration');  // Ensure the correct path to the UserSignup model
+const Profile = require('../models/profile').Profile;
 const { generateFileUrl } = require('../utils/uploadService');
 
 // Create a new listing
@@ -9,6 +9,13 @@ async function createListing(req, res) {
     try {
         console.log(req.body);
         console.log(req.file);
+
+    // Retrieve the profile using the provided ID
+    const profile = await Profile.findById(req.params.id);
+
+    if (!profile) {
+        return res.status(404).json({ error: 'Profile not found' });
+    }
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -27,7 +34,8 @@ async function createListing(req, res) {
             category,
             location,
             taggedUsers: taggedUsers ? JSON.parse(taggedUsers) : [],
-            tags: tags ? JSON.parse(tags) : []
+            tags: tags ? JSON.parse(tags) : [],
+            profile: profile._id
         });
 
         await newListing.save();
@@ -41,10 +49,26 @@ async function createListing(req, res) {
 async function getListingById(req, res) {
     try {
         const listing = await Listing.findById(req.params.id)
-            // .populate('taggedUsers', 'firstName lastName email')
-            .populate('likes', 'firstName lastName email')
-            .populate('comments.user', 'firstName lastName email')
-            .populate('shares', 'firstName lastName email');
+        .populate({
+            path: 'profile', // This should reference the Profile model
+            select: 'name headline media',
+            model: 'Profile' // Ensure this is the correct model
+        })
+        .populate({
+            path: 'taggedUsers',
+            select: 'name',
+            model: 'Profile' // Populate taggedUsers from the Profile model
+        })
+        .populate({
+            path: 'likes',
+            select: 'name',
+            model: 'Profile' // Populate likes from the Profile model
+        })
+        .populate({
+            path: 'comments.user',
+            select: 'name',
+            model: 'Profile' // Populate comment users from the Profile model
+        });
 
         if (!listing) {
             return res.status(404).json({ message: 'Listing not found' });
@@ -134,7 +158,27 @@ async function shareListing(req, res) {
 
 async function getAllListings(req, res) {
     try {
-        const listings = await Listing.find();
+        const listings = await Listing.find()
+        .populate({
+            path: 'profile', // This should reference the Profile model
+            select: 'name headline media',
+            model: 'Profile' // Ensure this is the correct model
+        })
+        .populate({
+            path: 'taggedUsers',
+            select: 'name',
+            model: 'Profile' // Populate taggedUsers from the Profile model
+        })
+        .populate({
+            path: 'likes',
+            select: 'name',
+            model: 'Profile' // Populate likes from the Profile model
+        })
+        .populate({
+            path: 'comments.user',
+            select: 'name',
+            model: 'Profile' // Populate comment users from the Profile model
+        });;
         res.status(200).json(listings);
     } catch (error) {
         res.status(500).json({ error: error.message });
