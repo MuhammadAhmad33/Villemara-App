@@ -94,17 +94,18 @@ async function deleteListing(req, res) {
 
 // Like a listing
 async function likeListing(req, res) {
+    const userId= req.user._id;
     try {
         const listing = await Listing.findById(req.params.id);
         if (!listing) {
             return res.status(404).json({ message: 'Listing not found' });
         }
 
-        if (listing.likes.includes(req.body.userId)) {
+        if (listing.likes.includes(userId)) {
             return res.status(400).json({ message: 'You have already liked this listing' });
         }
 
-        listing.likes.push(req.body.userId);
+        listing.likes.push(userId);
         await listing.save();
 
         res.status(200).json(listing);
@@ -115,6 +116,8 @@ async function likeListing(req, res) {
 
 // Comment on a listing
 async function commentOnListing(req, res) {
+    const userId= req.user._id;
+
     try {
         const listing = await Listing.findById(req.params.id);
         if (!listing) {
@@ -122,7 +125,7 @@ async function commentOnListing(req, res) {
         }
 
         const newComment = {
-            user: req.body.userId,
+            user: userId,
             text: req.body.text
         };
 
@@ -137,17 +140,19 @@ async function commentOnListing(req, res) {
 
 // Share a listing
 async function shareListing(req, res) {
+    const userId= req.user._id;
+
     try {
         const listing = await Listing.findById(req.params.id);
         if (!listing) {
             return res.status(404).json({ message: 'Listing not found' });
         }
 
-        if (listing.shares.includes(req.body.userId)) {
+        if (listing.shares.includes(userId)) {
             return res.status(400).json({ message: 'You have already shared this listing' });
         }
 
-        listing.shares.push(req.body.userId);
+        listing.shares.push(userId);
         await listing.save();
 
         res.status(200).json(listing);

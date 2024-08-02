@@ -100,17 +100,20 @@ async function deletePost(req, res) {
 };
 
 async function likePost(req, res) {
+
+    const userId= req.user._id;
+
     try {
         const post = await Post.findById(req.params.id);
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        if (post.likes.includes(req.body.userId)) {
+        if (post.likes.includes(userId)) {
             return res.status(400).json({ message: 'You have already liked this post' });
         }
 
-        post.likes.push(req.body.userId);
+        post.likes.push(userId);
         await post.save();
 
         res.status(200).json(post);
@@ -120,6 +123,8 @@ async function likePost(req, res) {
 };
 
 async function commentOnPost(req, res) {
+    const userId= req.user._id;
+
     try {
         const post = await Post.findById(req.params.id);
         if (!post) {
@@ -127,7 +132,7 @@ async function commentOnPost(req, res) {
         }
 
         const newComment = {
-            user: req.body.userId,
+            user: userId,
             text: req.body.text
         };
 
@@ -141,17 +146,19 @@ async function commentOnPost(req, res) {
 };
 
 async function sharePost(req, res) {
+    const userId= req.user._id;
+
     try {
         const post = await Post.findById(req.params.id);
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        if (post.shares.includes(req.body.userId)) {
+        if (post.shares.includes(userId)) {
             return res.status(400).json({ message: 'You have already shared this post' });
         }
 
-        post.shares.push(req.body.userId);
+        post.shares.push(userId);
         await post.save();
 
         res.status(200).json(post);
