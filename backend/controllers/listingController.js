@@ -60,11 +60,6 @@ async function getListingById(req, res) {
             model: 'Profile' // Populate taggedUsers from the Profile model
         })
         .populate({
-            path: 'likes',
-            select: 'name',
-            model: 'Profile' // Populate likes from the Profile model
-        })
-        .populate({
             path: 'comments.user',
             select: 'name',
             model: 'Profile' // Populate comment users from the Profile model
@@ -173,11 +168,6 @@ async function getAllListings(req, res) {
             path: 'taggedUsers',
             select: 'name',
             model: 'Profile' // Populate taggedUsers from the Profile model
-        })
-        .populate({
-            path: 'likes',
-            select: 'name',
-            model: 'Profile' // Populate likes from the Profile model
         })
         .populate({
             path: 'comments.user',
