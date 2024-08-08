@@ -46,7 +46,7 @@ async function createPost(req, res) {
         // Save the post to the database
         await newPost.save();
 
-        res.status(201).json(newPost);
+        res.status(201).json({newPost,userId: profile.user});
     } catch (error) {
         console.error('Error creating post:', error);
         res.status(500).json({ error: error.message });

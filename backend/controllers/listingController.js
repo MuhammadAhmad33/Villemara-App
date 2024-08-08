@@ -39,7 +39,7 @@ async function createListing(req, res) {
         });
 
         await newListing.save();
-        res.status(201).json(newListing);
+        res.status(201).json({newListing,userId: profile.user});
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
