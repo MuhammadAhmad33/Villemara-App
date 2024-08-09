@@ -168,7 +168,7 @@ async function getAllPosts(req, res) {
         const posts = await Post.find()
             .populate({
                 path: 'profile', // This should reference the Profile model
-                select: 'name headline media',
+                select: 'user name headline media',
                 model: 'Profile' // Ensure this is the correct model
             })
             .populate({

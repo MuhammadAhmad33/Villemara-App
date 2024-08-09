@@ -161,7 +161,7 @@ async function getAllListings(req, res) {
         const listings = await Listing.find()
         .populate({
             path: 'profile', // This should reference the Profile model
-            select: 'name headline media',
+            select: 'user name headline media',
             model: 'Profile' // Ensure this is the correct model
         })
         .populate({
