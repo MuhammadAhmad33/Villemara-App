@@ -89,21 +89,34 @@ async function deleteListing(req, res) {
 
 // Like a listing
 async function likeListing(req, res) {
-    const userId= req.user._id;
+    const userId = req.user._id;
     try {
         const listing = await Listing.findById(req.params.id);
         if (!listing) {
             return res.status(404).json({ message: 'Listing not found' });
         }
 
-        if (listing.likes.includes(userId)) {
+        if (listing.likes.some(like => like.user.toString() === userId.toString())) {
             return res.status(400).json({ message: 'You have already liked this listing' });
         }
 
-        listing.likes.push(userId);
+        const userProfile = await Profile.findOne({ user: userId }).select('name headline media');
+        if (!userProfile) {
+            return res.status(404).json({ message: 'User profile not found' });
+        }
+
+        const newLike = {
+            user: userId,
+            name: userProfile.name || 'Anonymous',
+            headline: userProfile.headline || '',
+            media: userProfile.media || '',
+            createdAt: new Date()
+        };
+
+        listing.likes.push(newLike);
         await listing.save();
 
-        res.status(200).json(listing);
+        res.status(200).json({ message: 'Listing liked successfully', like: newLike });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -111,7 +124,8 @@ async function likeListing(req, res) {
 
 // Comment on a listing
 async function commentOnListing(req, res) {
-    const userId= req.user._id;
+    const userId = req.user._id;
+    const { text } = req.body;
 
     try {
         const listing = await Listing.findById(req.params.id);
@@ -119,15 +133,24 @@ async function commentOnListing(req, res) {
             return res.status(404).json({ message: 'Listing not found' });
         }
 
+        const userProfile = await Profile.findOne({ user: userId }).select('name headline media');
+        if (!userProfile) {
+            return res.status(404).json({ message: 'User profile not found' });
+        }
+
         const newComment = {
             user: userId,
-            text: req.body.text
+            text: text,
+            name: userProfile.name || 'Anonymous',
+            headline: userProfile.headline || '',
+            media: userProfile.media || '',
+            createdAt: new Date()
         };
 
         listing.comments.push(newComment);
         await listing.save();
 
-        res.status(200).json(listing);
+        res.status(200).json({ message: 'Comment added successfully', comment: newComment });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -135,7 +158,7 @@ async function commentOnListing(req, res) {
 
 // Share a listing
 async function shareListing(req, res) {
-    const userId= req.user._id;
+    const userId = req.user._id;
 
     try {
         const listing = await Listing.findById(req.params.id);
@@ -143,14 +166,27 @@ async function shareListing(req, res) {
             return res.status(404).json({ message: 'Listing not found' });
         }
 
-        if (listing.shares.includes(userId)) {
+        if (listing.shares.some(share => share.user.toString() === userId.toString())) {
             return res.status(400).json({ message: 'You have already shared this listing' });
         }
 
-        listing.shares.push(userId);
+        const userProfile = await Profile.findOne({ user: userId }).select('name headline media');
+        if (!userProfile) {
+            return res.status(404).json({ message: 'User profile not found' });
+        }
+
+        const newShare = {
+            user: userId,
+            name: userProfile.name || 'Anonymous',
+            headline: userProfile.headline || '',
+            media: userProfile.media || '',
+            createdAt: new Date()
+        };
+
+        listing.shares.push(newShare);
         await listing.save();
 
-        res.status(200).json(listing);
+        res.status(200).json({ message: 'Listing shared successfully', share: newShare });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

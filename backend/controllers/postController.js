@@ -2,6 +2,7 @@ const Post = require('../models/posts');
 const Profile = require('../models/profile').Profile;
 const { validationResult } = require('express-validator');
 const { generateFileUrl } = require('../utils/uploadService');
+const mongoose = require('mongoose');
 
 async function createPost(req, res) {
     try {
@@ -99,7 +100,7 @@ async function likePost(req, res) {
     const userId= req.user._id;
 
     try {
-        const post = await Post.findById(req.params.id);
+        let post = await Post.findById(req.params.id);
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
@@ -108,8 +109,28 @@ async function likePost(req, res) {
             return res.status(400).json({ message: 'You have already liked this post' });
         }
 
-        post.likes.push(userId);
+        // Fetch the user's profile
+        const userProfile = await Profile.findOne({ user: userId })
+            .select('name headline media');
+
+        if (!userProfile) {
+            return res.status(404).json({ message: 'User profile not found' });
+        }
+
+        // Create a like object with user details
+        const likeObject = {
+            user: userId,
+            name: userProfile.name,
+            headline: userProfile.headline,
+            media: userProfile.media
+        };
+
+        // Add the like object to the post's likes array
+        post.likes.push(likeObject);
         await post.save();
+
+        // Fetch the updated post with populated likes
+        post = await Post.findById(post._id).populate('likes.user', '_id');
 
         res.status(200).json(post);
     } catch (error) {
@@ -118,30 +139,53 @@ async function likePost(req, res) {
 };
 
 async function commentOnPost(req, res) {
-    const userId= req.user._id;
+    const userId = req.user._id;
+    const { text } = req.body;
 
     try {
         const post = await Post.findById(req.params.id);
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
+        }
+
+        // Fetch the user's profile
+        const userProfile = await Profile.findOne({ user: userId }).select('name headline media');
+        if (!userProfile) {
+            return res.status(404).json({ message: 'User profile not found' });
         }
 
         const newComment = {
             user: userId,
-            text: req.body.text
+            text: text,
+            name: userProfile.name || 'Anonymous',
+            headline: userProfile.headline || '',
+            media: userProfile.media || '',
+            createdAt: new Date()
         };
 
+        // Add the new comment
+        if (!Array.isArray(post.comments)) {
+            post.comments = [];
+        }
         post.comments.push(newComment);
+
         await post.save();
 
-        res.status(200).json(post);
+        // Fetch the newly added comment
+        const addedComment = post.comments[post.comments.length - 1];
+
+        res.status(200).json({
+            message: 'Comment added successfully',
+            comment: addedComment
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error in commentOnPost:', error);
+        res.status(500).json({ error: 'An error occurred while adding the comment' });
     }
-};
+}
 
 async function sharePost(req, res) {
-    const userId= req.user._id;
+    const userId = req.user._id;
 
     try {
         const post = await Post.findById(req.params.id);
@@ -149,18 +193,41 @@ async function sharePost(req, res) {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        if (post.shares.includes(userId)) {
+        if (post.shares.some(share => share.user.toString() === userId.toString())) {
             return res.status(400).json({ message: 'You have already shared this post' });
         }
 
-        post.shares.push(userId);
+        // Fetch the user's profile
+        const userProfile = await Profile.findOne({ user: userId }).select('name headline media');
+        if (!userProfile) {
+            return res.status(404).json({ message: 'User profile not found' });
+        }
+
+        const newShare = {
+            user: userId,
+            name: userProfile.name,
+            headline: userProfile.headline || '',
+            media: userProfile.media || '',
+            createdAt: new Date()
+        };
+
+        post.shares.push(newShare);
         await post.save();
 
-        res.status(200).json(post);
+        // Fetch the updated post with populated shares
+        const updatedPost = await Post.findById(post._id)
+            .populate('shares.user', '_id name')
+            .populate('profile', 'name headline media');
+
+        res.status(200).json({
+            message: 'Post shared successfully',
+            post: updatedPost
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error in sharePost:', error);
+        res.status(500).json({ error: 'An error occurred while sharing the post' });
     }
-};
+}
 
 
 async function getAllPosts(req, res) {
