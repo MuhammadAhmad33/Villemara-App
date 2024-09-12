@@ -87,7 +87,6 @@ async function deleteListing(req, res) {
     }
 }
 
-// Like a listing
 async function likeListing(req, res) {
     const userId = req.user._id;
     try {
@@ -96,31 +95,43 @@ async function likeListing(req, res) {
             return res.status(404).json({ message: 'Listing not found' });
         }
 
-        if (listing.likes.some(like => like.user.toString() === userId.toString())) {
-            return res.status(400).json({ message: 'You have already liked this listing' });
+        // Find the index of the like object with the current userId
+        const likeIndex = listing.likes.findIndex(like => like.user.toString() === userId.toString());
+
+        if (likeIndex !== -1) {
+            // User has already liked the listing, so remove the like
+            listing.likes.splice(likeIndex, 1);
+        } else {
+            // User has not liked the listing, so add the like
+            const userProfile = await Profile.findOne({ user: userId }).select('name headline media');
+            if (!userProfile) {
+                return res.status(404).json({ message: 'User profile not found' });
+            }
+
+            const newLike = {
+                user: userId,
+                name: userProfile.name || 'Anonymous',
+                headline: userProfile.headline || '',
+                media: userProfile.media || '',
+                createdAt: new Date()
+            };
+
+            listing.likes.push(newLike);
         }
 
-        const userProfile = await Profile.findOne({ user: userId }).select('name headline media');
-        if (!userProfile) {
-            return res.status(404).json({ message: 'User profile not found' });
-        }
-
-        const newLike = {
-            user: userId,
-            name: userProfile.name || 'Anonymous',
-            headline: userProfile.headline || '',
-            media: userProfile.media || '',
-            createdAt: new Date()
-        };
-
-        listing.likes.push(newLike);
+        // Save the updated listing
         await listing.save();
 
-        res.status(200).json({ message: 'Listing liked successfully', like: newLike });
+        // Return the updated listing
+        res.status(200).json({
+            message: 'Listing like status updated successfully',
+            listing: listing
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 }
+
 
 // Comment on a listing
 async function commentOnListing(req, res) {

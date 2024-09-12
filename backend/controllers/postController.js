@@ -96,8 +96,7 @@ async function deletePost(req, res) {
 };
 
 async function likePost(req, res) {
-
-    const userId= req.user._id;
+    const userId = req.user._id;
 
     try {
         let post = await Post.findById(req.params.id);
@@ -105,28 +104,34 @@ async function likePost(req, res) {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        if (post.likes.includes(userId)) {
-            return res.status(400).json({ message: 'You have already liked this post' });
+        // Find the index of the like object with the current userId
+        const likeIndex = post.likes.findIndex(like => like.user.toString() === userId.toString());
+
+        if (likeIndex !== -1) {
+            // User has already liked the post, so remove the like
+            post.likes.splice(likeIndex, 1);
+        } else {
+            // User has not liked the post, so add the like
+            const userProfile = await Profile.findOne({ user: userId })
+                .select('name headline media');
+            
+            if (!userProfile) {
+                return res.status(404).json({ message: 'User profile not found' });
+            }
+
+            // Create a like object with user details
+            const likeObject = {
+                user: userId,
+                name: userProfile.name,
+                headline: userProfile.headline,
+                media: userProfile.media
+            };
+
+            // Add the like object to the post's likes array
+            post.likes.push(likeObject);
         }
 
-        // Fetch the user's profile
-        const userProfile = await Profile.findOne({ user: userId })
-            .select('name headline media');
-
-        if (!userProfile) {
-            return res.status(404).json({ message: 'User profile not found' });
-        }
-
-        // Create a like object with user details
-        const likeObject = {
-            user: userId,
-            name: userProfile.name,
-            headline: userProfile.headline,
-            media: userProfile.media
-        };
-
-        // Add the like object to the post's likes array
-        post.likes.push(likeObject);
+        // Save the post
         await post.save();
 
         // Fetch the updated post with populated likes
@@ -137,6 +142,7 @@ async function likePost(req, res) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 async function commentOnPost(req, res) {
     const userId = req.user._id;
