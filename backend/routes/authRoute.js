@@ -31,4 +31,6 @@ router.post('/reset-password', [
     check('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
 ], auth, authController.resetPassword);
 
+router.get('/search',authController.search)
+
 module.exports = router;

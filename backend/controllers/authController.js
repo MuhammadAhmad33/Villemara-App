@@ -1,6 +1,9 @@
 const UserSignup = require('../models/registration');
 const sendEmail = require('../utils/sendEmail');
 const { generateToken } = require('../utils/jwt');
+const Listing = require('../models/listings');
+const Post= require('../models/posts');
+const Profile = require('../models/profile').Profile;
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator');
@@ -146,11 +149,64 @@ async function resetPassword(req, res) {
         res.status(500).json({ message: error.message });
     }
 }
+// Search endpoint
+async function search (req, res){
+    const searchQuery = req.query.q; // Get the search term from the query params
+
+    if (!searchQuery || searchQuery.trim() === "") {
+        return res.status(400).send({ message: 'Search query is required' });
+    }
+
+    try {
+        // Create search query object using regex for case-insensitive matching
+        const searchRegex = new RegExp(searchQuery, 'i');
+
+        // Run searches in all three collections in parallel
+        const [posts, profiles, listings] = await Promise.all([
+            Post.find({
+                $or: [
+                    { thoughts: searchRegex },
+                    { location: searchRegex },
+                    { tags: searchRegex },
+                    { "comments.text": searchRegex }
+                ]
+            }).populate('profile taggedUsers comments.user likes.user'),
+
+            Profile.find({
+                $or: [
+                    { name: searchRegex },
+                    { headline: searchRegex },
+                    { companyName: searchRegex }
+                ]
+            }).populate('user projects experiences recommendationsGiven recommendationsReceived'),
+
+            Listing.find({
+                $or: [
+                    { caption: searchRegex },
+                    { location: searchRegex },
+                    { tags: searchRegex }
+                ]
+            }).populate('profile taggedUsers likes.user comments.user shares.user')
+        ]);
+
+        // Return the results in an object with separate arrays for each collection
+        res.status(200).json({
+            posts,
+            profiles,
+            listings
+        });
+    } catch (error) {
+        console.error("Error during search:", error);
+        res.status(500).send({ message: 'An error occurred while searching', error: error.message });
+    }
+};
+
 
 module.exports = {
     registerUser,
     loginUser,
     getUserById,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    search
 };
